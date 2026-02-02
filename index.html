@@ -40,7 +40,7 @@
   }
 
   #no {
-    position: fixed; /* 🔑 IMPORTANT */
+    position: fixed;
     padding: 15px 35px;
     font-size: 1.2rem;
     border: none;
@@ -49,7 +49,9 @@
     background: #f44336;
     color: white;
     z-index: 10;
-    transition: left 0.25s ease, top 0.25s ease;
+
+    /* ⚡ FAST */
+    transition: none;
   }
 
   .center {
@@ -121,7 +123,6 @@
 
 <button id="no">No</button>
 
-<!-- Popup -->
 <div class="popup" id="popup">
   <div class="popup-content">
     <h2>Yay! 💕</h2>
@@ -138,9 +139,9 @@
   let yesScale = 1;
 
   // Initial NO position
-  moveNo();
+  teleportNo();
 
-  // YES click
+  // YES logic
   yesBtn.addEventListener("click", () => {
     yesScale += Math.random() * 0.4 + 0.2;
     yesBtn.style.transform = `scale(${yesScale})`;
@@ -148,22 +149,33 @@
     popup.style.display = "flex";
   });
 
-  // NO movement (SAFE RANDOM)
-  function moveNo() {
-    const padding = 20;
-
+  // 🔥 TELEPORT FUNCTION (FAST + SAFE)
+  function teleportNo() {
+    const padding = 30;
     const maxX = window.innerWidth - noBtn.offsetWidth - padding;
     const maxY = window.innerHeight - noBtn.offsetHeight - padding;
 
     const x = Math.random() * maxX + padding;
     const y = Math.random() * maxY + padding;
 
-    noBtn.style.left = `${x}px`;
-    noBtn.style.top = `${y}px`;
+    noBtn.style.left = x + "px";
+    noBtn.style.top = y + "px";
   }
 
-  noBtn.addEventListener("mouseenter", moveNo);
-  noBtn.addEventListener("touchstart", moveNo);
+  // 🚀 RUN AWAY BEFORE CURSOR TOUCHES
+  document.addEventListener("mousemove", (e) => {
+    const rect = noBtn.getBoundingClientRect();
+    const dx = e.clientX - (rect.left + rect.width / 2);
+    const dy = e.clientY - (rect.top + rect.height / 2);
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    if (distance < 120) {
+      teleportNo();
+    }
+  });
+
+  // Mobile safety
+  noBtn.addEventListener("touchstart", teleportNo);
 
   function closePopup() {
     popup.style.display = "none";
